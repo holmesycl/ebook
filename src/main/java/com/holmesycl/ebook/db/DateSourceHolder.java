@@ -36,7 +36,7 @@ public class DateSourceHolder {
         return get().getConnection();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         Connection connection = DateSourceHolder.get().getConnection();
         QueryRunner runner = new QueryRunner();
         try {

@@ -1,30 +1,46 @@
 package com.holmesycl.ebook.bean;
 
 public class BookLink {
-    private int id;
-    private String url;
 
-    public BookLink(String url) {
-        this.url = url;
+    private String bookName;
+    private String linkUrl;
+
+    public BookLink() {
     }
 
-    public int getId() {
-        if (this.id == 0) {
-            int beginIndex = this.url.lastIndexOf("_") + 1;
-            int endIndex = this.url.lastIndexOf("/");
-            if (endIndex < beginIndex) {
-                endIndex = url.length();
-            }
-            this.id = Integer.parseInt(this.url.substring(beginIndex, endIndex));
-        }
-        return this.id;
+    public BookLink(String bookName, String linkUrl) {
+        this.bookName = bookName;
+        this.linkUrl = linkUrl;
     }
 
-    public String getUrl() {
-        return url;
+    public String getBookName() {
+        return bookName;
     }
 
-    public static void main(String[] args) {
-        System.out.println(new BookLink("http://www.biqugezw.com/18_18571").getId());
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
+    }
+
+    public String getLinkUrl() {
+        return linkUrl;
+    }
+
+    public void setLinkUrl(String linkUrl) {
+        this.linkUrl = linkUrl;
+    }
+
+    public int getBookId() {
+        String temp = this.linkUrl.replaceAll("/", "");
+        temp = temp.replaceAll("_", "");
+        temp = temp.substring(temp.lastIndexOf("com") + 3);
+        return Integer.parseInt(temp);
+    }
+
+    @Override
+    public String toString() {
+        return "BookLink{" +
+                "bookName='" + bookName + '\'' +
+                ", linkUrl='" + linkUrl + '\'' +
+                '}';
     }
 }
