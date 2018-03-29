@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +31,7 @@ public class App {
 
     static String FILE_SUFFIX = ".html";
 
-    static Map<Integer,AtomicInteger> CURRENT_NUM = new ConcurrentHashMap<>();
+    static Map<Integer, AtomicInteger> CURRENT_NUM = new ConcurrentHashMap<>();
 
     public static void main(String[] args) {
 
@@ -50,14 +51,19 @@ public class App {
                 Book book = new Book();
                 int bookId = bookLink.getBookId();
                 book.setBookId(bookId);
+                Document document = new Retry<>(new ConnectCommand(bookLink.getLinkUrl())).execute();
+                boolean updateBook = initBook(document, book);
+                if (!updateBook) {
+                    System.out.println("图书：【" + book.getBookName() + "】不需要更新，最后更新时间：" + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(book.getLastUpdateDate()));
+                    continue;
+                }
                 CURRENT_NUM.put(bookId, new AtomicInteger(0));
                 File bookFile = new File(baseDir, String.valueOf(book.getBookId()));
                 FileUtils.deleteDirectory(bookFile);
                 System.out.println("删除文件" + bookFile.getAbsolutePath());
                 FileUtils.forceMkdir(bookFile);
                 System.out.println("创建文件" + bookFile.getName());
-                Document document = new Retry<Document>(new ConnectCommand(bookLink.getLinkUrl())).execute();
-                initBook(document, book);
+
                 List<ChapterLink> chapterLinks = new ArrayList<ChapterLink>();
                 Elements elements = document.select("#list a");
                 Index index = new Index();
@@ -76,7 +82,7 @@ public class App {
                     chapterLinks.add(chapterLink);
                     executorService.submit(() -> {
                         try {
-                            Document doc = new Retry<Document>(new ConnectCommand(chapterLink.getChapterLink())).execute();
+                            Document doc = new Retry<>(new ConnectCommand(chapterLink.getChapterLink())).execute();
                             String chapterHtml = doc.select("#content").html();
                             chapterHtml = chapterHtml.substring(chapterHtml.indexOf("。") + 1);
                             chapterHtml = chapterHtml.substring(0, chapterHtml.lastIndexOf("手机用户"));
@@ -126,7 +132,7 @@ public class App {
         executorService.shutdown();
     }
 
-    private static void initBook(Document document, Book book) throws Exception {
+    private static boolean initBook(Document document, Book book) throws Exception {
         Element mainInfo = document.selectFirst("#maininfo");
         Element info = mainInfo.selectFirst("#info");
         String bookName = info.select("h1").text();
@@ -152,6 +158,18 @@ public class App {
         String imageHtml = src.substring(src.indexOf("<"), src.lastIndexOf(">") + 1);
         String image = Jsoup.parse(imageHtml).selectFirst("img").attr("src");
         book.setImage(image);
+
+        Book dbBook = BookDbUtil.getBookById(book.getBookId());
+        if (dbBook == null) {
+            BookDbUtil.saveBook(book);
+        } else {
+            String dbLastUpdateDate = sdf.format(dbBook.getLastUpdateDate());
+            if (lastUpdateDate.compareTo(dbLastUpdateDate) > 0) {
+                BookDbUtil.updateBook(book);
+                return true;
+            }
+        }
+        return false;
     }
 
 }
