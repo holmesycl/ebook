@@ -1,13 +1,9 @@
 package com.holmesycl.ebook.db;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.ResultSetHandler;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 public class DateSourceHolder {
@@ -35,33 +31,4 @@ public class DateSourceHolder {
     public static Connection getConnection() throws SQLException {
         return get().getConnection();
     }
-
-    public static void main(String[] args) throws Exception{
-        Connection connection = DateSourceHolder.get().getConnection();
-        QueryRunner runner = new QueryRunner();
-        try {
-            Object[] vals = runner.query("select * from ebook.book_link", new ResultSetHandler<Object[]>() {
-                @Override
-                public Object[] handle(ResultSet rs) throws SQLException {
-                    if (!rs.next()) {
-                        return null;
-                    }
-
-                    ResultSetMetaData meta = rs.getMetaData();
-                    int cols = meta.getColumnCount();
-                    Object[] result = new Object[cols];
-
-                    for (int i = 0; i < cols; i++) {
-                        result[i] = rs.getObject(i + 1);
-                        System.out.println(meta.getColumnName(i + 1) + result[i]);
-                    }
-
-                    return result;
-                }
-            });
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
 }

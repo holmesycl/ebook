@@ -35,7 +35,7 @@ public class App {
 
     public static void main(String[] args) {
 
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
         List<BookLink> bookLinks = new ArrayList<>();
         try {
             bookLinks = BookDbUtil.qryAllBookLink();
@@ -50,7 +50,7 @@ public class App {
             try {
                 Book book = new Book();
                 int bookId = bookLink.getBookId();
-                book.setBookId(bookId);
+                book.setBookId(bookLink.getBookId());
                 Document document = new Retry<>(new ConnectCommand(bookLink.getLinkUrl())).execute();
                 boolean updateBook = initBook(document, book);
                 if (!updateBook) {
@@ -62,7 +62,7 @@ public class App {
                 FileUtils.deleteDirectory(bookFile);
                 System.out.println("删除文件" + bookFile.getAbsolutePath());
                 FileUtils.forceMkdir(bookFile);
-                System.out.println("创建文件" + bookFile.getName());
+                System.out.println("创建文件" + bookFile.getAbsolutePath());
 
                 List<ChapterLink> chapterLinks = new ArrayList<ChapterLink>();
                 Elements elements = document.select("#list a");
@@ -86,6 +86,20 @@ public class App {
                             String chapterHtml = doc.select("#content").html();
                             chapterHtml = chapterHtml.substring(chapterHtml.indexOf("。") + 1);
                             chapterHtml = chapterHtml.substring(0, chapterHtml.lastIndexOf("手机用户"));
+                            chapterHtml = chapterHtml.replaceAll("<br>", "\n");
+                            BookChapter chapter = BookDbUtil.findBookChapterByBookIdAndPageNumber(book.getBookId(), chapterLink.getPageNumber());
+                            if (chapter == null) {
+                                chapter = new BookChapter();
+                                chapter.setBookId(book.getBookId());
+                                chapter.setPageNumber(chapterLink.getPageNumber());
+                                chapter.setPreviousChapter(chapterLink.getPrefixChapterLink().getPageNumber());
+                                chapter.setNextChapter(chapterLink.getNextChapterLink().getPageNumber());
+                                chapter.setTitle(chapterTitle);
+                                chapter.setContent(chapterHtml);
+                                chapter.setCreateDate(new Date());
+                                BookDbUtil.saveBookChapter(chapter);
+                            }
+
                             chapterHtml += "<nav aria-label=\"...\">\n" +
                                     "  <ul class=\"pager\">\n" +
                                     "    <li class=\"previous\"><a href=\"./" + chapterLink.getPrefixChapterLink().getPageNumber() + FILE_SUFFIX + "\"><span aria-hidden=\"true\">&larr;</span> 上一章</a></li>\n" +
@@ -116,11 +130,23 @@ public class App {
                             String chapterItemTemplate = "<a href=\"./%s" + FILE_SUFFIX + "\" class=\"list-group-item\">%s</a>";
                             String chapterItemLink = String.format(chapterItemTemplate, chapterItem.getPageNumber(), chapterItem.getChapterTitle());
                             chapterItemLinkList += chapterItemLink;
+
+                            BookIndex bookIndex = BookDbUtil.findBookIndexByBookIdAndPageNumber(bookId, chapterItem.getPageNumber());
+                            if (bookIndex == null) {
+                                bookIndex = new BookIndex();
+                                bookIndex.setBookId(bookId);
+                                bookIndex.setPageNumber(chapterItem.getPageNumber());
+                                bookIndex.setTitle(chapterItem.getChapterTitle());
+                                bookIndex.setCreateDate(new Date());
+                                BookDbUtil.saveBookIndex(bookIndex);
+                            }
                         }
                         String indexHtml = String.format(TemplateUtil.index(), book.getBookName(), book.getBookName(), book.getAuthor(), book.getIntroduction(), chapterItemLinkList);
                         FileUtils.writeStringToFile(indexFile, indexHtml, "utf-8");
                         System.out.println("目录文件：" + indexFile.getName() + "创建完成。");
                     } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 });
@@ -162,14 +188,15 @@ public class App {
         Book dbBook = BookDbUtil.getBookById(book.getBookId());
         if (dbBook == null) {
             BookDbUtil.saveBook(book);
+            return true;
         } else {
             String dbLastUpdateDate = sdf.format(dbBook.getLastUpdateDate());
             if (lastUpdateDate.compareTo(dbLastUpdateDate) > 0) {
                 BookDbUtil.updateBook(book);
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
 }
