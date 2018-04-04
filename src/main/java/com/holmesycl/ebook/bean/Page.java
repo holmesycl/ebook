@@ -1,6 +1,6 @@
 package com.holmesycl.ebook.bean;
 
-public class Page {
+public interface Pagable {
 
     private int prefix;
     private int pageNumber;

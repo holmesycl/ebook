@@ -44,7 +44,7 @@ public class BookDbUtil {
         }, bookId);
     }
 
-    public static void saveBook(Book book) throws Exception {
+    public static void saveBook(Book book) throws SQLException {
         QueryRunner runner = new QueryRunner(DateSourceHolder.get());
         runner.insert("insert into book(book_id,book_name,author,introduction,image,last_update_date) values(?,?,?,?,?,?)", (ResultSet rs) -> {
                     if (rs.next()) {

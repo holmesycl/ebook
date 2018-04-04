@@ -1,21 +1,28 @@
 package com.holmesycl.ebook.util;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ClassUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 public class TemplateUtil {
 
     public static String index() throws IOException {
-        return FileUtils.readFileToString(getResourceFile("index.html"), "utf-8");
+        return resourceToString("index.html");
     }
 
     public static String chapter() throws IOException {
-        return FileUtils.readFileToString(getResourceFile("chapter.html"), "utf-8");
+        return resourceToString("chapter.html");
     }
 
-    public static File getResourceFile(String fileName) {
-        return new File(Thread.currentThread().getContextClassLoader().getResource(fileName).getFile());
+    public static String bookshelf() throws IOException {
+        return resourceToString("bookshelf.html");
+    }
+
+    public static String resourceToString(String fileName) throws IOException {
+        return IOUtils.resourceToString(fileName, Charset.forName("utf-8"), ClassLoader.getSystemClassLoader());
     }
 }

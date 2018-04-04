@@ -1,10 +1,10 @@
 package com.holmesycl.ebook.bean;
 
-public class ChapterItem {
+public class ChapterReference {
 
     private String chapterTitle;
 
-    private int pageNumber;
+    private ChapterResource chapter;
 
     public String getChapterTitle() {
         return chapterTitle;
@@ -14,11 +14,11 @@ public class ChapterItem {
         this.chapterTitle = chapterTitle;
     }
 
-    public int getPageNumber() {
-        return pageNumber;
+    public Chapter getChapter() {
+        return chapter;
     }
 
-    public void setPageNumber(int pageNumber) {
-        this.pageNumber = pageNumber;
+    public void setChapter(Chapter chapter) {
+        this.chapter = chapter;
     }
 }

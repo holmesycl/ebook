@@ -3,19 +3,19 @@ package com.holmesycl.ebook.bean;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Index extends Page {
+public class Index {
 
-    private List<ChapterItem> items = new ArrayList<ChapterItem>();
+    private List<ChapterReference> items = new ArrayList<ChapterReference>();
 
-    public void addChapterItem(ChapterItem chapterItem) {
+    public void addChapterItem(ChapterReference chapterItem) {
         this.items.add(chapterItem);
     }
 
-    public List<ChapterItem> getItems() {
+    public List<ChapterReference> getItems() {
         return items;
     }
 
-    public void setItems(List<ChapterItem> items) {
+    public void setItems(List<ChapterReference> items) {
         this.items = items;
     }
 
