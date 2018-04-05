@@ -6,12 +6,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class Book extends Resource {
 
-    private int bookId;
+    private long bookId;
 
     private String bookName;
 
@@ -23,9 +24,13 @@ public class Book extends Resource {
 
     private Date lastUpdateDate;
 
+    private Chapter firstChapter;
+
+    private Chapter lastChapter;
+
     private Index index;
 
-    private List<Chapter> chapters;
+    private List<Chapter> chapters = new ArrayList<>();
 
     public Index getIndex() {
         return index;
@@ -43,11 +48,11 @@ public class Book extends Resource {
         this.chapters = chapters;
     }
 
-    public int getBookId() {
-        return bookId;
+    public long getBookId() {
+        return getResourceId();
     }
 
-    public void setBookId(int bookId) {
+    public void setBookId(long bookId) {
         this.bookId = bookId;
     }
 
@@ -89,6 +94,23 @@ public class Book extends Resource {
 
     public void setLastUpdateDate(Date lastUpdateDate) {
         this.lastUpdateDate = lastUpdateDate;
+    }
+
+
+    public Chapter getFirstChapter() {
+        return firstChapter;
+    }
+
+    public void setFirstChapter(Chapter firstChapter) {
+        this.firstChapter = firstChapter;
+    }
+
+    public Chapter getLastChapter() {
+        return lastChapter;
+    }
+
+    public void setLastChapter(Chapter lastChapter) {
+        this.lastChapter = lastChapter;
     }
 
     @Override
@@ -135,15 +157,36 @@ public class Book extends Resource {
             Element current = elements.get(i);
             Element prefix = elements.get(i == 0 ? i : i - 1);
             Element next = elements.get(i == len - 1 ? i : i + 1);
-            ChapterResource chapterResource = new ChapterResource(current.text(), current.attr("abs:href"));
-            chapterResource.setPrefixChapterResource(new ChapterResource(prefix.text(), prefix.attr("abs:href")));
-            chapterResource.setNextChapterResource(new ChapterResource(next.text(), next.attr("abs:href")));
+            Chapter chapter = new Chapter();
+            chapter.setResourceName(current.text());
+            chapter.setResourceUrl(current.attr("abs:href"));
+            chapter.setNextChapterResource(new ChapterResource(next.text(), next.attr("abs:href")));
+            chapter.setPrefixChapterResource(new ChapterResource(prefix.text(), prefix.attr("abs:href")));
+
+            if (current == prefix) {
+                this.setFirstChapter(chapter);
+            }
+            if (current == next) {
+                this.setLastChapter(chapter);
+            }
+
+            this.getChapters().add(chapter);
 
             ChapterReference chapterReference = new ChapterReference();
-            chapterReference.setChapterTitle(chapterResource.getResourceName());
-            chapterReference.setChapter(chapterReference);
-            index.addChapterItem(chapterItem);
+            chapterReference.setTitle(chapter.getResourceName());
+            chapterReference.setChapter(chapter);
+            index.getItems().add(chapterReference);
         }
         this.setIndex(index);
     }
+
+    @Override
+    public long getResourceId() {
+        // https://www.biqugezw.com/18_18571/
+        String temp = getResourceUrl();
+        temp = temp.replaceAll("_", "");
+        temp = temp.replaceAll("/", "");
+        return Long.parseLong(temp.substring(temp.lastIndexOf(".com") + 4));
+    }
+
 }

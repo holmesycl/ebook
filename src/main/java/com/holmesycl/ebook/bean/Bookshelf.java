@@ -4,15 +4,15 @@ public class Bookshelf {
 
     private String imgUrl;
 
+    private long bookId;
+
     private String bookName;
 
-    private int bookId;
-
-    private String firstChapter;
+    private Chapter firstChapter;
 
     private String author;
 
-    private String lastChapterTitle;
+    private Chapter lastChapter;
 
     public String getImgUrl() {
         return imgUrl;
@@ -38,28 +38,28 @@ public class Bookshelf {
         this.author = author;
     }
 
-    public String getLastChapterTitle() {
-        return lastChapterTitle;
-    }
-
-    public void setLastChapterTitle(String lastChapterTitle) {
-        this.lastChapterTitle = lastChapterTitle;
-    }
-
-    public int getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(int bookId) {
-        this.bookId = bookId;
-    }
-
-    public String getFirstChapter() {
+    public Chapter getFirstChapter() {
         return firstChapter;
     }
 
-    public void setFirstChapter(String firstChapter) {
+    public void setFirstChapter(Chapter firstChapter) {
         this.firstChapter = firstChapter;
+    }
+
+    public Chapter getLastChapter() {
+        return lastChapter;
+    }
+
+    public long getBookId() {
+        return bookId;
+    }
+
+    public void setBookId(long bookId) {
+        this.bookId = bookId;
+    }
+
+    public void setLastChapter(Chapter lastChapter) {
+        this.lastChapter = lastChapter;
     }
 
     /**
@@ -89,6 +89,6 @@ public class Bookshelf {
                 "                <p class=\"text-muted\">%s</p>\n" +
                 "            </div>\n" +
                 "        </li>";
-        return String.format(htmlTemplate, bookId, firstChapter, imgUrl, bookName, bookName, author, lastChapterTitle);
+        return String.format(htmlTemplate, bookId, firstChapter.getResourceId(), imgUrl, bookName, bookName, author, lastChapter.getResourceName());
     }
 }

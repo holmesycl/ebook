@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Executors;
 
@@ -50,32 +49,31 @@ public class DiscoverBookCommand implements Runnable {
                 logger.info("图书【{}】更新信息获取完毕，耗时：{}毫秒。", bookLink.getBookName(), end - start);
                 Book book = new Book();
                 book.setResourceName(bookLink.getBookName());
+                book.setBookName(bookLink.getBookName());
                 book.setResourceUrl(bookLink.getLinkUrl());
                 book.setBookId(bookLink.getBookId());
                 book.init(document);
-                logger.info("图书【{}】初始化完毕。详情：{}", book.getBookName(), book);
                 return book;
             });
         }
         for (int i = 0, len = bookLinks.size(); i < len; i++) {
             try {
                 Book book = completionService.take().get();
-                Book dbBook = null;
-                try {
-                    dbBook = BookDbUtil.getBookById(book.getBookId());
-                    if (dbBook == null) {
-                        BookDbUtil.saveBook(book);
-                        dbBook = book;
+                boolean updateBook = false;
+                Book dbBook = BookDbUtil.getBookById(book.getBookId());
+                if (dbBook == null) {
+                    BookDbUtil.saveBook(book);
+                    updateBook = true;
+                } else {
+                    if (book.getLastUpdateDate().after(dbBook.getLastUpdateDate())) {
+                        BookDbUtil.updateBook(book);
+                        updateBook = true;
                     }
-                } catch (SQLException e) {
-                    logger.error("出错了，错误信息：{}", e);
                 }
-                if (book.getLastUpdateDate().after(dbBook.getLastUpdateDate())) {
+                if (updateBook) {
                     context.offerUpdateBook(book);
                 }
-            } catch (InterruptedException e) {
-                logger.error("出错了，错误信息：{}", e);
-            } catch (ExecutionException e) {
+            } catch (Exception e) {
                 logger.error("出错了，错误信息：{}", e);
             }
         }

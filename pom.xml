@@ -91,7 +91,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.holmesycl.ebook.App</mainClass>
+                            <mainClass>com.holmesycl.ebook.CrawlerApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

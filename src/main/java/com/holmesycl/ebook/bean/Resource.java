@@ -1,6 +1,6 @@
 package com.holmesycl.ebook.bean;
 
-public class Resource {
+public abstract class Resource {
 
     private String resourceName;
 
@@ -29,4 +29,7 @@ public class Resource {
     public void setResourceUrl(String resourceUrl) {
         this.resourceUrl = resourceUrl;
     }
+
+    public abstract long getResourceId();
+
 }

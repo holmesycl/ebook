@@ -2,16 +2,16 @@ package com.holmesycl.ebook.bean;
 
 public class ChapterReference {
 
-    private String chapterTitle;
+    private String title;
 
-    private ChapterResource chapter;
+    private Chapter chapter;
 
-    public String getChapterTitle() {
-        return chapterTitle;
+    public String getTitle() {
+        return title;
     }
 
-    public void setChapterTitle(String chapterTitle) {
-        this.chapterTitle = chapterTitle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public Chapter getChapter() {

@@ -5,16 +5,16 @@ import java.util.Date;
 
 public class BookIndex implements Serializable {
 
-    private int bookId;
+    private long bookId;
     private int pageNumber;
     private String title;
     private Date createDate;
 
-    public int getBookId() {
+    public long getBookId() {
         return bookId;
     }
 
-    public void setBookId(int bookId) {
+    public void setBookId(long bookId) {
         this.bookId = bookId;
     }
 

@@ -24,11 +24,11 @@
 
 <script>
     function storage() {
-        var pathname = location.pathname;
+        var pathname = decodeURI(location.pathname);
         var s = pathname.indexOf("ebook") + 6;
         var e = pathname.lastIndexOf("\/");
         var bookId = pathname.substring(s, e);
-        var chapter = pathname.substring(e + 1, pathname.length);
+        var chapter = pathname.substring(e + 1, pathname.length - 5);
         localStorage.setItem(bookId, chapter);
     }
 </script>

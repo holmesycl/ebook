@@ -15,6 +15,16 @@ public class ChapterResource extends Resource {
         this.nextChapterResource = nextChapterResource;
     }
 
+    @Override
+    public long getResourceId() {
+        // https://www.biqugezw.com/18_18571/3143927.html
+        String temp = getResourceUrl();
+        temp = temp.replaceAll(".html", "");
+        temp = temp.replaceAll("_", "");
+        temp = temp.replaceAll("/", "");
+        return Long.parseLong(temp.substring(temp.lastIndexOf(".com") + 4));
+    }
+
     public ChapterResource getPrefixChapterResource() {
         return prefixChapterResource;
     }

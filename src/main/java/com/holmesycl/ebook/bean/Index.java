@@ -5,11 +5,9 @@ import java.util.List;
 
 public class Index {
 
-    private List<ChapterReference> items = new ArrayList<ChapterReference>();
+    private String name = "index";
 
-    public void addChapterItem(ChapterReference chapterItem) {
-        this.items.add(chapterItem);
-    }
+    private List<ChapterReference> items = new ArrayList<ChapterReference>();
 
     public List<ChapterReference> getItems() {
         return items;
@@ -19,10 +17,19 @@ public class Index {
         this.items = items;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Index{" +
-                "items=" + items +
+                "name='" + name + '\'' +
+                ", items=" + items +
                 '}';
     }
 }

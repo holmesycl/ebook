@@ -27,7 +27,7 @@ public class BookDbUtil {
         });
     }
 
-    public static Book getBookById(int bookId) throws SQLException {
+    public static Book getBookById(long bookId) throws SQLException {
         QueryRunner runner = new QueryRunner(DateSourceHolder.get());
         return runner.query("select * from book where book_id = ?", (ResultSet rs) -> {
             Book book = null;
@@ -91,7 +91,7 @@ public class BookDbUtil {
     }
 
 
-    public static BookIndex findBookIndexByBookIdAndPageNumber(int bookId, int pageNumber) throws SQLException {
+    public static BookIndex findBookIndexByBookIdAndPageNumber(long bookId, int pageNumber) throws SQLException {
         QueryRunner runner = new QueryRunner(DateSourceHolder.get());
         return runner.query("select * from book_index where book_id = ? and page_number = ?", (ResultSet rs) -> {
             BookIndex index = null;

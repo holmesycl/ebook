@@ -19,12 +19,12 @@ public class CrawlerApplication {
      * @param args
      */
     public static void main(String[] args) {
-
+        logger.info("开始启动电子书爬虫...");
         ApplicationContext context = new ApplicationContext();
         ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(5);
         scheduledExecutorService.scheduleWithFixedDelay(new DiscoverBookCommand(context), 1, 10 * 60, TimeUnit.SECONDS);
         scheduledExecutorService.scheduleWithFixedDelay(new PersistBookCommand(context), 5, 5, TimeUnit.SECONDS);
-
+        logger.info("电子书爬虫启动完毕...");
     }
 
 }
